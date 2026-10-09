@@ -1,0 +1,35 @@
+name: Playwright Sanity
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install
+        run: npm install
+
+      - name: Install Browsers
+        run: npx playwright install --with-deps
+
+      - name: Start App
+        run: |
+          node app.js &
+          sleep 5
+
+      - name: Run Sanity
+        run: npx playwright test
