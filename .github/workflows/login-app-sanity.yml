@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   pull_request:
 
 jobs:
@@ -20,16 +19,22 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install
-        run: npm install
+      - name: Install Dependencies
+        run: npm ci
 
-      - name: Install Browsers
+      - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
       - name: Start App
         run: |
-          node app.js &
-          sleep 5
+          node app.js > app.log 2>&1 &
+          for i in {1..15}; do
+            if curl -s http://localhost:3000/ > /dev/null; then
+              echo "Application started"
+              break
+            fi
+            sleep 2
+          done
 
-      - name: Run Sanity
+      - name: Run Sanity Tests
         run: npx playwright test
